@@ -1,0 +1,70 @@
+server:
+  port: 9099
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath:mybatis/com/mapper/*.xml
+
+spring:
+  shardingsphere:
+    datasource:
+      names: master0,master1,slave00,slave01,slave10,slave11
+      master0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:9902/user_db?characterEncoding=utf-8
+        username: root
+        password: mysql
+      master1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:9904/user_db?characterEncoding=utf-8
+        username: root
+        password: mysql
+      slave00:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:9901/user_db?characterEncoding=utf-8
+        username: root
+        password: mysql
+      slave10:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:9903/user_db?characterEncoding=utf-8
+        username: root
+        password: mysql
+      slave11:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:9905/user_db?characterEncoding=utf-8
+        username: root
+        password: mysql
+      slave01:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:9906/user_db?characterEncoding=utf-8
+        username: root
+        password: mysql
+    sharding:
+      default-database-strategy:
+        inline:
+          algorithm-expression: master$->{user_id % 2}
+          sharding-column: user_id
+      tables:
+        t_order:
+          actual-data-nodes: master$->{0..1}.t_order_$->{0..1}
+          table-strategy:
+            inline:
+              algorithm-expression: t_order_$->{order_id % 2} # 分表的算法表达式
+              sharding-column: order_id  #根据order_id进行分表
+      master-slave-rules:
+        master0:
+          master-data-source-name: master0
+          slave-data-source-names: slave00,slave01
+        master1:
+          master-data-source-name: master1
+          slave-data-source-names: slave10,slave11
+
+    props:
+      show:
+        sql: true
+

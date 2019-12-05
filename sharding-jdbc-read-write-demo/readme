@@ -1,0 +1,2 @@
+基于Sharding JDBC 4.x.x版本的读写分离
+一主多从，数据库的数据同步采用binlog
